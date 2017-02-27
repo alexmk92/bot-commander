@@ -5,7 +5,8 @@
   "main": "main.js",
   "scripts": {
     "compile": "browserify -t [ babelify --presets [ react es2015 ] ] src/app.js -o js/app.js",
-    "start": "electron main.js"
+    "start": "electron main.js",
+    "build": "Build script here"
   },
   "repository": "https://github.com/electron/electron-quick-start",
   "keywords": [
