@@ -10,7 +10,9 @@
   },
   "repository": "https://github.com/electron/electron-quick-start",
   "keywords": [
-    "Discord", "Bot", "Electron"
+    "Discord",
+    "Bot",
+    "Electron"
   ],
   "author": "Alex Sims",
   "license": "CC0-1.0",
@@ -19,10 +21,17 @@
     "babel-preset-react": "^6.23.0",
     "babelify": "^7.3.0",
     "browserify": "^14.1.0",
+    "dev-web-server": "^1.6.1",
     "electron": "^1.4.1"
   },
   "dependencies": {
+    "fontawesome": "^4.7.2",
+    "q": "^1.4.1",
     "react": "^15.4.2",
-    "react-dom": "^15.4.2"
+    "react-addons-update": "^15.4.2",
+    "react-dom": "^15.4.2",
+    "react-redux": "^5.0.3",
+    "redux": "^3.6.0",
+    "redux-promise": "^0.5.3"
   }
 }
