@@ -25653,11 +25653,182 @@ function symbolObservablePonyfill(root) {
 	return result;
 };
 },{}],227:[function(require,module,exports){
+var _global = (function() { return this; })();
+var NativeWebSocket = _global.WebSocket || _global.MozWebSocket;
+var websocket_version = require('./version');
+
+
+/**
+ * Expose a W3C WebSocket class with just one or two arguments.
+ */
+function W3CWebSocket(uri, protocols) {
+	var native_instance;
+
+	if (protocols) {
+		native_instance = new NativeWebSocket(uri, protocols);
+	}
+	else {
+		native_instance = new NativeWebSocket(uri);
+	}
+
+	/**
+	 * 'native_instance' is an instance of nativeWebSocket (the browser's WebSocket
+	 * class). Since it is an Object it will be returned as it is when creating an
+	 * instance of W3CWebSocket via 'new W3CWebSocket()'.
+	 *
+	 * ECMAScript 5: http://bclary.com/2004/11/07/#a-13.2.2
+	 */
+	return native_instance;
+}
+
+
+/**
+ * Module exports.
+ */
+module.exports = {
+    'w3cwebsocket' : NativeWebSocket ? W3CWebSocket : null,
+    'version'      : websocket_version
+};
+
+},{"./version":228}],228:[function(require,module,exports){
+module.exports = require('../package.json').version;
+
+},{"../package.json":229}],229:[function(require,module,exports){
+module.exports={
+  "_args": [
+    [
+      {
+        "name": "websocket",
+        "raw": "websocket",
+        "rawSpec": "",
+        "scope": null,
+        "spec": "latest",
+        "type": "tag"
+      },
+      "/Users/alexsims/Web/botcommander"
+    ]
+  ],
+  "_from": "websocket@latest",
+  "_id": "websocket@1.0.24",
+  "_inCache": true,
+  "_installable": true,
+  "_location": "/websocket",
+  "_nodeVersion": "7.3.0",
+  "_npmOperationalInternal": {
+    "host": "packages-12-west.internal.npmjs.com",
+    "tmp": "tmp/websocket-1.0.24.tgz_1482977757939_0.1858439394272864"
+  },
+  "_npmUser": {
+    "email": "brian@worlize.com",
+    "name": "theturtle32"
+  },
+  "_npmVersion": "3.10.10",
+  "_phantomChildren": {},
+  "_requested": {
+    "name": "websocket",
+    "raw": "websocket",
+    "rawSpec": "",
+    "scope": null,
+    "spec": "latest",
+    "type": "tag"
+  },
+  "_requiredBy": [
+    "/"
+  ],
+  "_resolved": "https://registry.npmjs.org/websocket/-/websocket-1.0.24.tgz",
+  "_shasum": "74903e75f2545b6b2e1de1425bc1c905917a1890",
+  "_shrinkwrap": null,
+  "_spec": "websocket",
+  "_where": "/Users/alexsims/Web/botcommander",
+  "author": {
+    "email": "brian@worlize.com",
+    "name": "Brian McKelvey",
+    "url": "https://www.worlize.com/"
+  },
+  "browser": "lib/browser.js",
+  "bugs": {
+    "url": "https://github.com/theturtle32/WebSocket-Node/issues"
+  },
+  "config": {
+    "verbose": false
+  },
+  "contributors": [
+    {
+      "email": "ibc@aliax.net",
+      "name": "Iñaki Baz Castillo",
+      "url": "http://dev.sipdoc.net"
+    }
+  ],
+  "dependencies": {
+    "debug": "^2.2.0",
+    "nan": "^2.3.3",
+    "typedarray-to-buffer": "^3.1.2",
+    "yaeti": "^0.0.6"
+  },
+  "description": "Websocket Client & Server Library implementing the WebSocket protocol as specified in RFC 6455.",
+  "devDependencies": {
+    "buffer-equal": "^1.0.0",
+    "faucet": "^0.0.1",
+    "gulp": "git+https://github.com/gulpjs/gulp.git#4.0",
+    "gulp-jshint": "^2.0.4",
+    "jshint": "^2.0.0",
+    "jshint-stylish": "^2.2.1",
+    "tape": "^4.0.1"
+  },
+  "directories": {
+    "lib": "./lib"
+  },
+  "dist": {
+    "shasum": "74903e75f2545b6b2e1de1425bc1c905917a1890",
+    "tarball": "https://registry.npmjs.org/websocket/-/websocket-1.0.24.tgz"
+  },
+  "engines": {
+    "node": ">=0.8.0"
+  },
+  "gitHead": "0e15f9445953927c39ce84a232cb7dd6e3adf12e",
+  "homepage": "https://github.com/theturtle32/WebSocket-Node",
+  "keywords": [
+    "websocket",
+    "websockets",
+    "socket",
+    "networking",
+    "comet",
+    "push",
+    "RFC-6455",
+    "realtime",
+    "server",
+    "client"
+  ],
+  "license": "Apache-2.0",
+  "main": "index",
+  "maintainers": [
+    {
+      "email": "brian@worlize.com",
+      "name": "theturtle32"
+    }
+  ],
+  "name": "websocket",
+  "optionalDependencies": {},
+  "readme": "ERROR: No README data found!",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/theturtle32/WebSocket-Node.git"
+  },
+  "scripts": {
+    "gulp": "gulp",
+    "install": "(node-gyp rebuild 2> builderror.log) || (exit 0)",
+    "test": "faucet test/unit"
+  },
+  "version": "1.0.24"
+}
+
+},{}],230:[function(require,module,exports){
 'use strict';
 
 var t = require('./types');
 var config = require('../config');
 var helpers = require('../helpers');
+var SessionManager = require('../classes/sessionManager');
 
 module.exports = {
     sendRequestViaWebhook: function sendRequestViaWebhook(parameters) {
@@ -25695,21 +25866,21 @@ module.exports = {
     },
     connectToGateway: function connectToGateway() {
         console.log("Connecting");
+        // TODO: Do a cache from hitting the endpoint only recache if we cant connect
         // Get the WSS connection URL and then cache it
-        helpers.ajax({
-            type: "GET",
-            url: config.DISCORD_BOT_API_BASE_URL + "/gateway"
-        }).then(function (data) {
-            console.log("URL IS: ", data);
-        }, function (err) {
-            console.log("Failed: ", err);
+        // URL should be: wss://gateway.discord.gg
+        var sm = new SessionManager();
+        sm.Connect(function (err, data) {
+            console.log("Got err: ", err);
+            console.log("Got data: ", data);
         });
 
+        // Do this eventually
         return {
             type: t.CONNECT_TO_GATEWAY,
             payload: {
-                connection: "yo jonas",
-                connected: true
+                connection: null,
+                connected: false
             }
         };
     },
@@ -25723,7 +25894,7 @@ module.exports = {
     }
 };
 
-},{"../config":232,"../helpers":234,"./types":228}],228:[function(require,module,exports){
+},{"../classes/sessionManager":233,"../config":236,"../helpers":238,"./types":231}],231:[function(require,module,exports){
 "use strict";
 
 module.exports = {
@@ -25732,7 +25903,7 @@ module.exports = {
     DISCONNECT_FROM_GATEWAY: "DISCONNECT_FROM_GATEWAY"
 };
 
-},{}],229:[function(require,module,exports){
+},{}],232:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -25811,7 +25982,52 @@ if (main) {
     ), main);
 }
 
-},{"./components/Button":230,"./containers/Toolbar":233,"./helpers":234,"./reducers/index":235,"react":215,"react-dom":46,"react-redux":184,"redux":222,"redux-promise":216}],230:[function(require,module,exports){
+},{"./components/Button":234,"./containers/Toolbar":237,"./helpers":238,"./reducers/index":239,"react":215,"react-dom":46,"react-redux":184,"redux":222,"redux-promise":216}],233:[function(require,module,exports){
+'use strict';
+
+var WebSocketClient = require('websocket').client;
+var config = require('../config');
+
+// Ideally we want to abstract this out to a separate
+// server bot as we need to send heartbeat messages here,
+// seems a little over complicated for a simple client
+// app, this will actually run more like a server
+
+var SessionManager = function SessionManager() {
+    this.ws = new WebSocketClient();
+};
+
+SessionManager.prototype.Connect = function (callback) {
+    this.ws.on('connectFailed', function (err) {
+        console.log("CONNECTION ERROR: ", err);
+        // this is where we should recache and try again, make this more modular!
+        return callback(err, null);
+    });
+
+    this.ws.on('connect', function (connection) {
+        console.log("Websocket connected!");
+
+        connection.on('error', function (err) {
+            console.log("Connection error: ", err);
+        });
+
+        connection.on('close', function () {
+            console.log("Connection closed");
+        });
+
+        connection.on('message', function (msg) {
+            console.log("Got message: ", msg);
+        });
+
+        return callback(null, connection);
+    }.bind(this));
+
+    this.ws.connect(config.DISCORD_WSS_API_BASE_URL + "?v=5&encoding=json");
+};
+
+module.exports = SessionManager;
+
+},{"../config":236,"websocket":227}],234:[function(require,module,exports){
 "use strict";
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -25853,7 +26069,7 @@ var ReactButton = function (_Component) {
 
 module.exports = ReactButton;
 
-},{"react":215}],231:[function(require,module,exports){
+},{"react":215}],235:[function(require,module,exports){
 "use strict";
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -25911,7 +26127,7 @@ var Airhorn = function (_React$Component) {
 
 module.exports = Airhorn;
 
-},{"react":215,"react-fontawesome":173}],232:[function(require,module,exports){
+},{"react":215,"react-fontawesome":173}],236:[function(require,module,exports){
 'use strict';
 
 module.exports = {
@@ -25929,7 +26145,7 @@ module.exports = {
     BOT_TOKEN: "MjkwNTgyODA4MDQ3Mzg2NjI1.C6dCbA.cZQfyV3Bad0iM_4oPGfMyY9s0MU"
 };
 
-},{}],233:[function(require,module,exports){
+},{}],237:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -26011,7 +26227,7 @@ function mapDispatchToProps(dispatch) {
 
 module.exports = ReactRedux.connect(mapStateToProps, mapDispatchToProps)(Toolbar);
 
-},{"../actions/commands":227,"../components/bot-adaptors/Airhorn":231,"react":215,"react-redux":184,"redux":222}],234:[function(require,module,exports){
+},{"../actions/commands":230,"../components/bot-adaptors/Airhorn":235,"react":215,"react-redux":184,"redux":222}],238:[function(require,module,exports){
 "use strict";
 
 var Q = require('q');
@@ -26114,7 +26330,7 @@ module.exports = {
     }
 };
 
-},{"q":44}],235:[function(require,module,exports){
+},{"q":44}],239:[function(require,module,exports){
 'use strict';
 
 var Redux = require('redux');
@@ -26128,7 +26344,7 @@ var RootReducer = Redux.combineReducers({
 
 module.exports = RootReducer;
 
-},{"./reducer.commands":236,"redux":222}],236:[function(require,module,exports){
+},{"./reducer.commands":240,"redux":222}],240:[function(require,module,exports){
 'use strict';
 
 var t = require('../actions/types');
@@ -26159,4 +26375,4 @@ module.exports = function (state, action) {
     };
 };
 
-},{"../actions/types":228,"react-addons-update":45}]},{},[229]);
+},{"../actions/types":231,"react-addons-update":45}]},{},[232]);

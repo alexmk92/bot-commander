@@ -1,6 +1,7 @@
 const t = require('./types');
 const config = require('../config');
 const helpers = require('../helpers');
+const SessionManager = require('../classes/sessionManager');
 
 module.exports = {
     sendRequestViaWebhook: function(parameters) {
@@ -40,21 +41,19 @@ module.exports = {
         console.log("Connecting")
         // TODO: Do a cache from hitting the endpoint only recache if we cant connect
         // Get the WSS connection URL and then cache it
-        // URL shoul dbe: wss://gateway.discord.gg  
-        helpers.ajax({
-            type: "GET",
-            url: config.DISCORD_BOT_API_BASE_URL + "/gateway"
-        }).then(function(data) {
-
-        }, function() {
-            
+        // URL should be: wss://gateway.discord.gg
+        var sm = new SessionManager();
+        sm.Connect(function(err, data) {
+            console.log("Got err: ", err);
+            console.log("Got data: ", data);
         });
 
+        // Do this eventually
         return {
             type: t.CONNECT_TO_GATEWAY,
             payload: {
-                connection : "yo jonas",
-                connected : true
+                connection: null,
+                connected: false
             }
         }
     },
